@@ -242,6 +242,7 @@ Resources:
           Value: !Sub Docker Worker 1st of ${AWS::StackName}
         - Key: project
           Value: "202"
+          
   DockerWorker2:
     Type: AWS::EC2::Instance
     DependsOn:
