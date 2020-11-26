@@ -4,10 +4,13 @@ services:
   database:
     image: mysql:5.7
     volumes:
-      - /datadir:/var/lib/mysql
-      - ./init.sql:/docker-entrypoint-initdb.d/
+      - db-data:/var/lib/mysql
+      #- ./init.sql:/docker-entrypoint-initdb.d/ böyle yazılbilir ama best practise config ile yapılması
+    configs:
+      - source: initialdatabase
+        target: /docker-entrypoint-iniydb.d/init.sql
     environment:
-      MYSQL_ROOT_PASSWORD: R1234r
+      MYSQL_ROOT_PASSWORD: P1234p
             MYSQL_DATABASE: phonebook_db
             MYSQL_USER: admin
             MYSQL_PASSWORD: Clarusway_1
@@ -16,9 +19,13 @@ services:
       - clarusnet
 
   myapp:
-    image: 089319708029.dkr.ecr.us-east-1.amazonaws.com/e2011yahya/phonebook-app:latest
+    image: "${ECR_REGISTRY}/${APP_REPO_NAME}:latest"
     deploy:
       mode: global
+      update_config:
+        parallelism: 2
+        delay: 5s
+        order: start-first
     restart: always
     depends_on:   
       -  database
@@ -29,6 +36,12 @@ services:
   
 networks:
   clarusnet:
-    driver: bridge      
+    driver: overlay      
 
-  
+volumes:
+  db-data:
+
+
+configs:
+  initialdatabase:
+    file: ./init.sql
